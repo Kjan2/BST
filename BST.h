@@ -433,14 +433,7 @@ public:
 
     Iterator end()
     {
-        Node* curr = _root;
-
-        while (curr->right != nullptr)
-        {
-            curr = curr->right;
-        }
-
-        return Iterator(curr);
+        return Iterator(nullptr);
     }
 
     ConstIterator cbegin() const
@@ -456,14 +449,7 @@ public:
     }
     ConstIterator cend() const
     {
-        Node* curr = _root;
-
-        while (curr->right != nullptr)
-        {
-            curr = curr->right;
-        }
-
-        return ConstIterator(curr);
+        return ConstIterator(nullptr);
     }
 
 
@@ -471,29 +457,7 @@ public:
     {
         return _size;
     }
-void print(Node* node) const
-{
-    if (node == nullptr)
-    {
-        return;
-    }
 
-    if (node == _root)
-    {
-        std::cout << node->keyValuePair.first << "root" << std::endl;
-    }
-    else if (node->parent->left == node)
-    {
-        std::cout << node->keyValuePair.first << " is " << node->parent->keyValuePair.first << "'s left child " << std::endl;  
-    }
-    else
-    {
-        std::cout << node->keyValuePair.first << " is " << node->parent->keyValuePair.first << "'s right child " << std::endl;
-    }
-
-    print(node->left);
-    print(node->right);
-}
 
 public:
     size_t _size = 0;
@@ -638,5 +602,172 @@ public:
     }
 
 };
- 
+
+/*!
+    Имплементация словаря
+    Не допускается дублирование ключей (аналог std::map)
+*/
+template <typename Key, typename Value>
+class Map
+{
+    BinarySearchTree<Key, Value> _tree;
+public:
+    using MapIterator = BinarySearchTree::Iterator;
+    using ConstMapIterator = BinarySearchTree::ConstIterator;
+
+    Map() = default;
+    
+    explicit Map(const Map& other)
+    {
+        _tree = other;
+    }
+    Map& operator=(const Map& other)
+    {
+        _tree = other;
+    }
+
+    explicit Map(Map&& other) noexcept
+    {
+        _tree = other;
+    }
+    Map& operator=(Map&& other) noexcept
+    {
+        _tree = other;
+    }
+
+    ~Map() = default;
+
+    // вставить элемент с ключем key и значением value
+    // если узел с ключем key уже представлен, то заменить его значение на value
+    void insert(const Key& key, const Value& value)
+    {
+        if((MapIterator it = _tree.find(key)) !=
+                     MapIterator(nullptr))
+        {
+            (*it).second = value;
+            return;
+        }
+        _tree.insert(key, value);
+    }
+
+    // удалить элемент с ключем key
+    void erase(const Key& key)
+    {
+        _tree.erase(key);
+    }
+
+    // найти элемент, равный ключу key
+    ConstMapIterator find(const Key& key) const
+    {
+        return _tree.cfind(key);
+    }
+    MapIterator find(const Key& key)
+    {
+        return _tree.find(key);
+    }
+
+    // доступ к элементу по ключу
+    // если в момент обращения элемента не существует, создать его, 
+    // ключ равен key, value равно дефолтному значению для типа Value
+    const Value& operator[](const Key& key) 
+    {
+        return (*find(key).second);
+    }
+    Value& operator[](const Key& key)
+    {
+        if((MapIterator it = _tree.find(key)) !=
+                     MapIterator(nullptr))
+        {
+            Value value;
+            insert(key, value);
+        }
+
+        return (*find(key).second);
+    }
+
+    MapIterator begin()
+    {
+        return _tree.begin();
+    }
+    MapIterator end()
+    {
+        return _tree.end();
+    }
+
+    ConstMapIterator cbegin() const
+    {
+        return _tree.cbegin();
+    }
+    ConstMapIterator cend() const
+    {
+        return _tree.cend();
+    }
+
+    size_t size() const
+    {
+        return _tree.size();
+    }
+};
+
+ template <typename Value>
+class Set
+{
+    Map<Value, Value> _map;
+
+public:
+    using SetIterator = Map::MapIterator;
+    using ConstSetIterator = Map::ConstMapIterator;
+
+    Set() = default;
+
+    explicit Set(const Set& other)
+    {
+        _map = other;
+    }
+    Set& operator=(const Set& other)
+    {
+        _map = other;
+    }
+
+    explicit Set(Set&& other) noexcept
+    {
+        _map = other;
+    }
+    Set& operator=(Set&& other) noexcept
+    {
+        _map = other;
+    }
+
+    ~Set() = default;
+
+    void insert(const Value& value)
+    {
+        _map.insert(value, value);
+    }
+
+    void erase(const Value& value)
+    {
+        _map.erase(value);
+    }
+
+    ConstSetIterator find(const Value& value) const
+    {
+        return _map.find(value);
+    }
+    SetIterator find(const Value& value)
+    {
+        return _map.find(value);
+    }
+
+    bool contains(const Value& value) const
+    {
+        if((MapIterator it = _tree.find(key)) !=
+                     MapIterator(nullptr))
+        {
+            return false;
+        }
+        return true;
+    }
+};
+
 

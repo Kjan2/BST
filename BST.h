@@ -459,7 +459,7 @@ public:
     }
 
 
-public:
+private:
     size_t _size = 0;
     Node* _root = nullptr; //!< корневой узел дерева
 

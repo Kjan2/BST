@@ -612,8 +612,8 @@ class Map
 {
     BinarySearchTree<Key, Value> _tree;
 public:
-    using MapIterator = BinarySearchTree::Iterator;
-    using ConstMapIterator = BinarySearchTree::ConstIterator;
+    using MapIterator = typename BinarySearchTree<Key,Value>::Iterator;
+    using ConstMapIterator = typename BinarySearchTree<Key,Value>::ConstIterator;
 
     Map() = default;
     
@@ -635,13 +635,12 @@ public:
         _tree = other;
     }
 
-    ~Map() = default;
-
     // вставить элемент с ключем key и значением value
     // если узел с ключем key уже представлен, то заменить его значение на value
     void insert(const Key& key, const Value& value)
     {
-        if((MapIterator it = _tree.find(key)) !=
+        MapIterator it(nullptr);  
+        if((it = _tree.find(key)) !=
                      MapIterator(nullptr))
         {
             (*it).second = value;
@@ -669,13 +668,14 @@ public:
     // доступ к элементу по ключу
     // если в момент обращения элемента не существует, создать его, 
     // ключ равен key, value равно дефолтному значению для типа Value
-    const Value& operator[](const Key& key) 
+    const Value& operator[](const Key& key) const
     {
         return (*find(key).second);
     }
     Value& operator[](const Key& key)
     {
-        if((MapIterator it = _tree.find(key)) !=
+        MapIterator it;
+        if((it = _tree.find(key)) !=
                      MapIterator(nullptr))
         {
             Value value;
@@ -715,8 +715,8 @@ class Set
     Map<Value, Value> _map;
 
 public:
-    using SetIterator = Map::MapIterator;
-    using ConstSetIterator = Map::ConstMapIterator;
+    using SetIterator = typename Map<Value, Value>::MapIterator;
+    using ConstSetIterator = typename Map<Value, Value>::ConstMapIterator;
 
     Set() = default;
 
@@ -761,8 +761,9 @@ public:
 
     bool contains(const Value& value) const
     {
-        if((MapIterator it = _tree.find(key)) !=
-                     MapIterator(nullptr))
+        SetIterator it;
+        if((it = _map.find(value)) !=
+                     SetIterator(nullptr))
         {
             return false;
         }
